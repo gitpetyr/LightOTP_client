@@ -20,11 +20,11 @@ def register(Server_URL,UserID,Password):
 
 class OTPConnector():
     def __init__(self):
-        Server_URL=""
-        UseHTTPS=False
-        SkipSSLCERT=False
-        UserID=""
-        Passwd=""
+        self.Server_URL=""
+        self.UseHTTPS=True
+        self.SkipSSLCERT=False
+        self.UserID=""
+        self.Passwd=""
     def CheckConnect(self):
         pass
     
