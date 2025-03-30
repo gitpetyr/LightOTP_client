@@ -36,13 +36,18 @@ class SettingDialog(Ui_SettingDialog,QDialog):
         self.show()
         self.exec()
     
+    def UrlChanged(self):
+        Connector.Server_URL=self.UrlEdit.text()
+    def UserIDChanged(self):
+        Connector.UserID=self.UserIDEdit.text()
+    def PasswdChanged(self):
+        Connector.Passwd=self.PasswordEdit.text()
     def ProtocolChanged(self):
         Connector.UseHTTPS=bool(self.ProtocolBox.currentIndex())
         if not Connector.UseHTTPS:
             self.SkipCertBox.setEnabled(False)
         else:
             self.SkipCertBox.setEnabled(True)
-    
     def SkipedChanged(self):
         Connector.SkipSSLCERT=self.SkipCertBox.isChecked()
     
@@ -61,6 +66,10 @@ class SettingDialog(Ui_SettingDialog,QDialog):
             self.SkipCertBox.setChecked(True)
         else:
             self.SkipCertBox.setChecked(False)
+            
+        self.UrlEdit.textChanged.connect(self.UrlChanged)
+        self.UserIDEdit.textChanged.connect(self.UserIDChanged)
+        self.PasswordEdit.textChanged.connect(self.PasswdChanged)
         self.ProtocolBox.currentIndexChanged.connect(self.ProtocolChanged)
         self.SkipCertBox.stateChanged.connect(self.SkipedChanged)
 

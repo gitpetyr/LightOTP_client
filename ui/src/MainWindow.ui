@@ -64,11 +64,6 @@
       <string>Now Key</string>
      </property>
     </column>
-    <column>
-     <property name="text">
-      <string>Creat Time</string>
-     </property>
-    </column>
    </widget>
    <widget class="QPushButton" name="FreshButton">
     <property name="geometry">
