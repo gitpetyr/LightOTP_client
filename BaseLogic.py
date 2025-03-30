@@ -1,9 +1,9 @@
 from urllib.parse import urljoin
-import requests
+import requests,os
 
 def register(Server_URL,UserID,Password):
     Tokens={"userid" : UserID , "usertoken" : Password}
-    res=requests.post(urljoin(Server_URL,"register"),params=Tokens)
+    res=requests.post(urljoin(Server_URL,"/register"),params=Tokens)
     
     res_iter=(res.status_code,res.json())
     
@@ -27,13 +27,14 @@ class OTPConnector():
         self.Passwd=""
     def calcURL(self,idx : str):
         if self.UseHTTPS:
-            baseurl=urljoin("https://",self.Server_URL)
+            baseurl="https://"+self.Server_URL
         else:
-            baseurl=urljoin("http://",self.Server_URL)
+            baseurl="http://"+self.Server_URL
+        # print(baseurl)
         return urljoin(baseurl,idx)
     def CheckConnect(self):
         Tokens={"userid" : self.UserID , "usertoken" : self.Password}
-        res=requests.post(self.calcURL("/test/checktoken"),params=Tokens)
+        res=requests.post(self.calcURL("test/checktoken"),params=Tokens)
         
         res_iter=(res.status_code,res.json())
         
@@ -47,7 +48,7 @@ class OTPConnector():
     
     def addTOTP(self,name : str,totpkey : str):
         Tokens={"userid" : self.UserID , "usertoken" : self.Passwd , "totpname" : name ,"totpkey" : totpkey}
-        res=requests.post(self.calcURL("/addtotp"),params=Tokens)
+        res=requests.post(self.calcURL("addtotp"),params=Tokens)
         
         res_iter=(res.status_code,res.json())
         
@@ -64,7 +65,7 @@ class OTPConnector():
     
     def delTOTP(self,name : str):
         Tokens={"userid" : self.UserID , "usertoken" : self.Passwd , "totpname" : name}
-        res=requests.post(self.calcURL("/deltotp"),params=Tokens)
+        res=requests.post(self.calcURL("deltotp"),params=Tokens)
         
         res_iter=(res.status_code,res.json())
         
@@ -81,7 +82,7 @@ class OTPConnector():
     
     def getTOTP(self,name : str):
         Tokens={"userid" : self.UserID , "usertoken" : self.Passwd , "totpname" : name}
-        res=requests.post(self.calcURL("/gettotp"),params=Tokens)
+        res=requests.post(self.calcURL("gettotp"),params=Tokens)
         
         res_iter=(res.status_code,res.json())
         
@@ -94,11 +95,11 @@ class OTPConnector():
         if not("res" in list(res_iter[1])):
             raise RuntimeError(res_iter)
         
-        return str(res_iter["res"]["totpkey"])
+        return str(res_iter[1]["res"]["totpkey"])
     
     def getTOTPList(self):
         Tokens={"userid" : self.UserID , "usertoken" : self.Passwd}
-        res=requests.post(self.calcURL("/gettotplist"),params=Tokens)
+        res=requests.post(self.calcURL("gettotplist"),params=Tokens)
         
         res_iter=(res.status_code,res.json())
         
@@ -108,10 +109,25 @@ class OTPConnector():
         if "requests" in list(res_iter[1].keys()):
             del res_iter[1]["requests"]
             
-        if not("res" in list(res_iter[1])):
+        if not("res" in list(res_iter[1].keys())):
             raise RuntimeError(res_iter)
         
-        return list(res_iter["res"]["totpnames"])
+        if not("totpnames" in list(res_iter[1]["res"])):
+            return []
+        print(res_iter)
+        return list(res_iter[1]["res"]["totpnames"])
+    
+    def getTOTPiter(self):
+        ls=self.getTOTPList()
+        iter={}
+        for i in ls:
+            try:
+                iter[i]=self.getTOTP(i)
+            except RuntimeError as e:
+                iter[i]=str(e)
+            finally:
+                pass
+        return iter
     
     
         

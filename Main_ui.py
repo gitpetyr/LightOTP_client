@@ -1,7 +1,8 @@
 from ui.MainWindow import Ui_MainWindow
 from ui.RegistrationDialog import Ui_RegistrationDialog
 from ui.SettingDialog import Ui_SettingDialog
-from PyQt6.QtWidgets import QApplication,QMainWindow,QDialog
+from ui.AddDialog import Ui_AddDialog
+from PyQt6.QtWidgets import QApplication,QMainWindow,QDialog,QTableWidgetItem
 import BaseLogic
 import sys,PyQt6
 
@@ -36,20 +37,19 @@ class SettingDialog(Ui_SettingDialog,QDialog):
         self.show()
         self.exec()
     
-    def UrlChanged(self):
+    def Save(self):
         Connector.Server_URL=self.UrlEdit.text()
-    def UserIDChanged(self):
         Connector.UserID=self.UserIDEdit.text()
-    def PasswdChanged(self):
         Connector.Passwd=self.PasswordEdit.text()
-    def ProtocolChanged(self):
         Connector.UseHTTPS=bool(self.ProtocolBox.currentIndex())
-        if not Connector.UseHTTPS:
+        Connector.SkipSSLCERT=self.SkipCertBox.isChecked()
+    def ProtocolChanged(self):
+        if self.ProtocolBox.currentIndex()==0:
             self.SkipCertBox.setEnabled(False)
         else:
             self.SkipCertBox.setEnabled(True)
     def SkipedChanged(self):
-        Connector.SkipSSLCERT=self.SkipCertBox.isChecked()
+        pass
     
     def LogicSetup(self):
         self.setModal(True)
@@ -66,12 +66,31 @@ class SettingDialog(Ui_SettingDialog,QDialog):
             self.SkipCertBox.setChecked(True)
         else:
             self.SkipCertBox.setChecked(False)
-            
-        self.UrlEdit.textChanged.connect(self.UrlChanged)
-        self.UserIDEdit.textChanged.connect(self.UserIDChanged)
-        self.PasswordEdit.textChanged.connect(self.PasswdChanged)
+        self.accepted.connect(self.Save)
         self.ProtocolBox.currentIndexChanged.connect(self.ProtocolChanged)
         self.SkipCertBox.stateChanged.connect(self.SkipedChanged)
+        
+class AddDialog(Ui_AddDialog,QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.LogicSetup()
+        self.show()
+        self.exec()
+    
+    def Accepted(self):
+        try:
+            Connector.addTOTP(self.OtpNameEdit.text(),self.KeyEdit.toPlainText())
+            mainUI.fresh()
+        except Exception as e:
+            mainUI.LogsEdit.setPlainText(str(e))
+        finally:
+            pass
+    
+    def LogicSetup(self):
+        self.setModal(True)
+        self.buttonBox.accepted.connect(self.Accepted)
+        pass
 
 class MainUI(Ui_MainWindow,QMainWindow):
     def __init__(self):
@@ -79,11 +98,41 @@ class MainUI(Ui_MainWindow,QMainWindow):
         self.setupUi(self)
         self.LogicSetup()
         self.show()
-        
+    
+    def fresh(self):
+        try:
+            self.FreshButton.setEnabled(False)
+            iter=Connector.getTOTPiter()
+            print(iter)
+            row=0
+            # self.OtpTable.clear()
+            self.OtpTable.setRowCount(len(iter))
+            for i in iter:
+                self.OtpTable.setItem(row,0,QTableWidgetItem(i))
+                self.OtpTable.setItem(row,1,QTableWidgetItem(iter[i]))
+                row=row+1
+            self.FreshButton.setEnabled(True)
+        except Exception as e:
+            self.LogsEdit.setPlainText(str(e))
+        finally:
+            pass
+    def deleteOTP(self):
+        try:
+            row=self.OtpTable.currentRow()
+            target=self.OtpTable.item(row,0).text()
+            print(target)
+        except Exception as e:
+            self.LogsEdit.setPlainText(str(e))
+        finally:
+            pass
+    
     def LogicSetup(self):
         self.actionExit.triggered.connect(self.close)
         self.actionRegistration_Tools.triggered.connect(RegistrationDialog)
         self.actionSettings.triggered.connect(SettingDialog)
+        self.FreshButton.clicked.connect(self.fresh)
+        self.AddButton.clicked.connect(AddDialog)
+        self.DelButton.clicked.connect(self.deleteOTP)
         
 if __name__ == "__main__":
     app = QApplication(sys.argv)
