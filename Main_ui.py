@@ -3,6 +3,7 @@ from ui.RegistrationDialog import Ui_RegistrationDialog
 from ui.SettingDialog import Ui_SettingDialog
 from ui.AddDialog import Ui_AddDialog
 from PyQt6.QtWidgets import QApplication,QMainWindow,QDialog,QTableWidgetItem
+from PyQt6.QtWidgets import QMessageBox
 import BaseLogic
 import sys,PyQt6
 
