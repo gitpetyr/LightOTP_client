@@ -48,7 +48,7 @@ class OTPConnector():
     
     def addTOTP(self,name : str,totpkey : str):
         Tokens={"userid" : self.UserID , "usertoken" : self.Passwd , "totpname" : name ,"totpkey" : totpkey}
-        res=requests.post(self.calcURL("addtotp"),params=Tokens)
+        res=requests.post(self.calcURL("addtotp"),params=Tokens,verify=not(self.SkipSSLCERT))
         
         res_iter=(res.status_code,res.json())
         
@@ -65,7 +65,7 @@ class OTPConnector():
     
     def delTOTP(self,name : str):
         Tokens={"userid" : self.UserID , "usertoken" : self.Passwd , "totpname" : name}
-        res=requests.post(self.calcURL("deltotp"),params=Tokens)
+        res=requests.post(self.calcURL("deltotp"),params=Tokens,verify=not(self.SkipSSLCERT))
         
         res_iter=(res.status_code,res.json())
         
@@ -82,7 +82,7 @@ class OTPConnector():
     
     def getTOTP(self,name : str):
         Tokens={"userid" : self.UserID , "usertoken" : self.Passwd , "totpname" : name}
-        res=requests.post(self.calcURL("gettotp"),params=Tokens)
+        res=requests.post(self.calcURL("gettotp"),params=Tokens,verify=not(self.SkipSSLCERT))
         
         res_iter=(res.status_code,res.json())
         
@@ -99,7 +99,7 @@ class OTPConnector():
     
     def getTOTPList(self):
         Tokens={"userid" : self.UserID , "usertoken" : self.Passwd}
-        res=requests.post(self.calcURL("gettotplist"),params=Tokens)
+        res=requests.post(self.calcURL("gettotplist"),params=Tokens,verify=not(self.SkipSSLCERT))
         
         res_iter=(res.status_code,res.json())
         

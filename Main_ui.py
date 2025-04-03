@@ -103,6 +103,7 @@ class MainUI(Ui_MainWindow,QMainWindow):
     def fresh(self):
         try:
             self.FreshButton.setEnabled(False)
+            self.LogsEdit.setPlainText("")
             iter=Connector.getTOTPiter()
             print(iter)
             row=0
@@ -114,20 +115,30 @@ class MainUI(Ui_MainWindow,QMainWindow):
                 row=row+1
             self.FreshButton.setEnabled(True)
         except Exception as e:
+            self.FreshButton.setEnabled(True)
             self.LogsEdit.setPlainText(str(e))
         finally:
             pass
     def deleteOTP(self):
         try:
+            self.LogsEdit.setPlainText("")
             row=self.OtpTable.currentRow()
             target=self.OtpTable.item(row,0).text()
             print(target)
+            result=(QMessageBox.warning(self,"Warning","You are sure you want to delete '"+target+"', this action cannot be undone!",
+                                       QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                       defaultButton=QMessageBox.StandardButton.No)==QMessageBox.StandardButton.Yes)
+            print(result)
+            if result:
+                Connector.delTOTP(target)
+                self.fresh()
         except Exception as e:
             self.LogsEdit.setPlainText(str(e))
         finally:
             pass
     
     def LogicSetup(self):
+        self.LogsEdit.setPlainText("")
         self.actionExit.triggered.connect(self.close)
         self.actionRegistration_Tools.triggered.connect(RegistrationDialog)
         self.actionSettings.triggered.connect(SettingDialog)
