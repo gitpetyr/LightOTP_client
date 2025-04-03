@@ -23,7 +23,7 @@ jobs:
           python -m pip install --upgrade pip setuptools
           python -m pip install pyinstaller
           python -m pip install -r requirements.txt
-          python -m pyinstaller -F -w -i logo.ico Main_ui.py --clean
+          pyinstaller -F -w -i logo.ico Main_ui.py --clean
 
       - name: Upload distributions
         uses: actions/upload-artifact@v4
