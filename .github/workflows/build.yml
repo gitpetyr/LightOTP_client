@@ -1,0 +1,33 @@
+name: Python package
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  Windows-release-build:
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build release distributions
+        run: |
+          python -m pip install --upgrade pip setuptools
+          python -m pip install pyinstaller
+          python -m pip install -r requirements.txt
+          python -m pyinstaller -F -w -i logo.ico Main_ui.py --clean
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: LightOTP_win64
+          path: dist/Main_ui.exe
+      
